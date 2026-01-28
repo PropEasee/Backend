@@ -16,6 +16,7 @@ target/
 # Firebase / Google secrets
 firebase-service-account.json
 *.json
+application.yml
 
 
 ### IntelliJ IDEA ###
