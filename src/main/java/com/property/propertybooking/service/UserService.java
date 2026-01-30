@@ -40,6 +40,13 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    // find user by email (used by authentication flows)
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    
     
     
  // 1 GET user by ID
