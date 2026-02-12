@@ -26,6 +26,8 @@ import com.property.propertybooking.entity.PropertyViews;
 import com.property.propertybooking.service.PropertyImageService;
 import com.property.propertybooking.service.PropertyService;
 import com.property.propertybooking.service.ViewService;
+import com.property.propertybooking.service.LoggingClientService;
+
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class PropertyController {
     private final PropertyService propertyService;
     private final PropertyImageService imageService;
     private final ViewService viewService;
+    private final LoggingClientService loggingClientService;
 
 //    public PropertyController(PropertyService propertyService , PropertyImageService imageService) {
 //        this.propertyService = propertyService;
@@ -57,11 +60,13 @@ public class PropertyController {
     // GET PROPERTY BY ID
     @GetMapping("/{id}")
     public ResponseEntity<PropertyResponse> getPropertyById(@PathVariable Long id) {
+        loggingClientService.sendLog("INFO", "Fetching property with ID: " + id);
         return ResponseEntity.ok(propertyService.getPropertyById(id));
     }
     
     @GetMapping
     public ResponseEntity<List<PropertyResponse>> getAllProperties() {
+        loggingClientService.sendLog("INFO", "Fetching All properties");
         return ResponseEntity.ok(propertyService.getAllProperties());
     }
 
