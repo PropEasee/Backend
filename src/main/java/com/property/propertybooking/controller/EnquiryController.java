@@ -2,7 +2,7 @@ package com.property.propertybooking.controller;
 
 import java.util.List;
 import java.util.Map;
-
+import com.property.propertybooking.service.LoggingClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,14 +12,24 @@ import com.property.propertybooking.dto.EnquiryCreateRequestDto;
 import com.property.propertybooking.dto.EnquiryStatusUpdateDto;
 import com.property.propertybooking.dto.EnquiryUpdateRequestDto;
 import com.property.propertybooking.entity.Enquiry;
+import com.property.propertybooking.service.EmailService;
 import com.property.propertybooking.service.EnquiryService;
 
 @RestController
 @RequestMapping("/api/enquiries")
 public class EnquiryController {
 
+    private final LoggingClientService loggingClientService;
+
+    private final EmailService emailService;
+
     @Autowired
     private EnquiryService enquiryService;
+
+    EnquiryController(EmailService emailService, LoggingClientService loggingClientService) {
+        this.emailService = emailService;
+        this.loggingClientService = loggingClientService;
+    }
 
     // API 1: Create Enquiry
     
@@ -29,9 +39,30 @@ public class EnquiryController {
 
         // TEMPORARY buyerId 
         Long buyerId = dto.getUserId();
-
         Enquiry enquiry = enquiryService.createEnquiry(buyerId, dto);
 
+     // Send email to seller
+        try {
+            String sellerEmail = enquiry.getProperty().getSeller().getEmail();
+            String buyerName = enquiry.getBuyer().getName();
+            String buyerEmail = enquiry.getBuyer().getEmail();
+            String propertyTitle = enquiry.getProperty().getTitle();
+            String message = enquiry.getMessage();
+
+            emailService.sendEnquiryNotificationToSeller(
+                sellerEmail, 
+                buyerName,
+                buyerEmail,
+                propertyTitle, 
+                message
+            );
+            
+
+        } catch (Exception e) {
+            loggingClientService.sendLog("ERROR", 
+                "Enquiry created but email failed: " + e.getMessage());
+        }
+        
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("Enquiry created");
