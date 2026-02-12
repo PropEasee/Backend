@@ -16,8 +16,14 @@ public class EmailService {
     public void sendEnquiryNotificationToSeller(String sellerEmail, String buyerName, String buyerEmail,
             String propertyTitle, String enquiryMessage) {
         try {
+        	// Validate email is not null or empty
+            if (sellerEmail == null || sellerEmail.trim().isEmpty()) {
+                log.error("Seller email is null or empty");
+                return;
+            }
+        	
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo("sellerEmail");
+            message.setTo(sellerEmail);
             message.setSubject("New Enquiry for Property: " + propertyTitle);
             message.setText(buildEmailBody(buyerName,buyerEmail, propertyTitle, enquiryMessage));
             message.setFrom("propease7@gmail.com");
